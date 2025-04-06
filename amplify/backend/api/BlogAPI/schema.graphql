@@ -1,0 +1,36 @@
+type Blog @model @auth(rules: [{ allow: owner }, { allow: public, operations: [read] }]) {
+  id: ID!
+  title: String!
+  content: String!
+  coverImage: String
+  owner: String
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  likes: [Like] @hasMany
+  comments: [Comment] @hasMany
+}
+
+type Like @model @auth(rules: [{ allow: private, operations: [create, read, delete] }]) {
+  id: ID!
+  blogID: ID! @index(name: "byBlog")
+  owner: String
+  blog: Blog @belongsTo(fields: ["blogID"])
+}
+
+type Comment @model @auth(rules: [{ allow: owner }, { allow: public, operations: [read] }, { allow: private, operations: [create] }]) {
+  id: ID!
+  blogID: ID! @index(name: "byBlog")
+  content: String!
+  owner: String
+  createdAt: AWSDateTime
+  blog: Blog @belongsTo(fields: ["blogID"])
+}
+
+type User @model @auth(rules: [{ allow: owner }, { allow: public, operations: [read] }]) {
+  id: ID!
+  name: String
+  email: String
+  bio: String
+  profilePicture: String
+  blogs: [Blog] @hasMany
+}
